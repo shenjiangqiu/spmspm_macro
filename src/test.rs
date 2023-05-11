@@ -11,16 +11,23 @@ pub struct RowIdWordId {
     pub row_id: PhysicRowId,
     pub word_id: WordId,
 }
+impl RowIdWordId {
+    pub fn new(row_id: PhysicRowId, word_id: WordId) -> Self {
+        Self { row_id, word_id }
+    }
+}
 #[derive(Debug, Default, Clone)]
 pub struct RowLocation {
     pub subarray_id: SubarrayId,
     pub row_id_world_id: RowIdWordId,
 }
-#[derive(serde :: Serialize, serde :: Deserialize, Debug, Default, Clone, Copy)]
-pub struct JumpCycles {
-    pub arrow: Arrow,
-    pub big_cack_goods: BigCackGoods,
-    pub cack_bought_by_me_233_445: CackBoughtByMe<233, 445>,
+impl RowLocation {
+    pub fn new(subarray_id: SubarrayId, row_id_world_id: RowIdWordId) -> Self {
+        Self {
+            subarray_id,
+            row_id_world_id,
+        }
+    }
 }
 pub trait JumpCycle {
     fn total(&self) -> usize;
@@ -62,61 +69,65 @@ pub trait RowCycleArrayReduce {
         mapper: impl FnMut(&JumpCycles) -> &T,
     );
 }
-impl JumpCycles {
+impl MyDuduAA {
     pub fn apply(&self, action: &mut impl RowCycleAction) {
-        action.apply(&self.arrow);
-        action.apply(&self.big_cack_goods);
-        action.apply(&self.cack_bought_by_me_233_445);
+        action.apply(&self.aaa);
+        action.apply(&self.bbb);
+        action.apply(&self.bb33);
+        action.apply(&self.cc);
     }
     pub fn apply_mut(&mut self, action: &mut impl RowCycleActionMut) {
-        action.apply_mut(&mut self.arrow);
-        action.apply_mut(&mut self.big_cack_goods);
-        action.apply_mut(&mut self.cack_bought_by_me_233_445);
+        action.apply_mut(&mut self.aaa);
+        action.apply_mut(&mut self.bbb);
+        action.apply_mut(&mut self.bb33);
+        action.apply_mut(&mut self.cc);
     }
     pub fn apply_pair_mut(&self, target: &mut Self, action: &mut impl RowCycleActionPairMut) {
-        action.apply_pair_mut(&self.arrow, &mut target.arrow);
-        action.apply_pair_mut(&self.big_cack_goods, &mut target.big_cack_goods);
-        action.apply_pair_mut(
-            &self.cack_bought_by_me_233_445,
-            &mut target.cack_bought_by_me_233_445,
-        );
+        action.apply_pair_mut(&self.aaa, &mut target.aaa);
+        action.apply_pair_mut(&self.bbb, &mut target.bbb);
+        action.apply_pair_mut(&self.bb33, &mut target.bb33);
+        action.apply_pair_mut(&self.cc, &mut target.cc);
     }
     pub fn apply_reduce(
         input_array: &[Self],
         target: &mut Self,
         action: &mut impl RowCycleArrayReduce,
     ) {
-        action.apply_reduce(input_array, &mut target.arrow, |item| &item.arrow);
-        action.apply_reduce(input_array, &mut target.big_cack_goods, |item| {
-            &item.big_cack_goods
-        });
-        action.apply_reduce(input_array, &mut target.cack_bought_by_me_233_445, |item| {
-            &item.cack_bought_by_me_233_445
-        });
+        action.apply_reduce(input_array, &mut target.aaa, |item| &item.aaa);
+        action.apply_reduce(input_array, &mut target.bbb, |item| &item.bbb);
+        action.apply_reduce(input_array, &mut target.bb33, |item| &item.bb33);
+        action.apply_reduce(input_array, &mut target.cc, |item| &item.cc);
     }
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum JumpCyclesTypes {
-    Arrow,
-    BigCackGoods,
-    CackBoughtByMe233G445,
+pub enum MyDuduAATypes {
+    Aaa,
+    Bbb,
+    Bb33,
+    Cc,
     End,
 }
-impl JumpCyclesTypes {
+impl Default for MyDuduAATypes {
+    fn default() -> Self {
+        Self::Aaa
+    }
+}
+impl MyDuduAATypes {
     fn move_to_next(&mut self) {
         *self = match self {
-            JumpCyclesTypes::Arrow => JumpCyclesTypes::BigCackGoods,
-            JumpCyclesTypes::BigCackGoods => JumpCyclesTypes::CackBoughtByMe233G445,
-            JumpCyclesTypes::CackBoughtByMe233G445 => JumpCyclesTypes::End,
-            JumpCyclesTypes::End => JumpCyclesTypes::End,
+            MyDuduAATypes::Aaa => MyDuduAATypes::Bbb,
+            MyDuduAATypes::Bbb => MyDuduAATypes::Bb33,
+            MyDuduAATypes::Bb33 => MyDuduAATypes::Cc,
+            MyDuduAATypes::Cc => MyDuduAATypes::End,
+            MyDuduAATypes::End => MyDuduAATypes::End,
         }
     }
 }
-impl Iterator for JumpCyclesTypes {
-    type Item = JumpCyclesTypes;
+impl Iterator for MyDuduAATypes {
+    type Item = MyDuduAATypes;
     fn next(&mut self) -> Option<Self::Item> {
         let current = self.clone();
-        if current == JumpCyclesTypes::End {
+        if current == MyDuduAATypes::End {
             return None;
         }
         self.move_to_next();
