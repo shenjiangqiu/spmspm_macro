@@ -119,6 +119,28 @@ pub fn generate_basic_type_definitions() -> proc_macro2::TokenStream {
                             id.0
                         }
                     }
+                    impl core::ops::Add for $name {
+                        type Output = Self;
+                        fn add(self, rhs: Self) -> Self::Output {
+                            Self(self.0 + rhs.0)
+                        }
+                    }
+                    impl core::ops::AddAssign for $name {
+                        fn add_assign(&mut self, rhs: Self) {
+                            self.0 += rhs.0;
+                        }
+                    }
+                    impl core::ops::Sub for $name {
+                        type Output = Self;
+                        fn sub(self, rhs: Self) -> Self::Output {
+                            Self(self.0 - rhs.0)
+                        }
+                    }
+                    impl core::ops::SubAssign for $name {
+                        fn sub_assign(&mut self, rhs: Self) {
+                            self.0 -= rhs.0;
+                        }
+                    }
                     impl Default for $name {
                         fn default() -> Self {
                             Self(0)
@@ -380,4 +402,67 @@ pub fn generate_struct_impl(
 
     );
     struct_token_stream
+}
+#[derive(serde::Deserialize, Debug)]
+struct SimpleConfig {
+    channels: usize,
+    banks: usize,
+    subarrays: usize,
+    cols: usize,
+    word_size: usize,
+    walker_size: usize,
+}
+pub(crate) fn generate_default_config_inner(
+    input: proc_macro2::TokenStream,
+) -> proc_macro2::TokenStream {
+    let file_path: syn::LitStr = syn::parse2(input).unwrap();
+    let simple_config: SimpleConfig =
+        toml::from_str(&std::fs::read_to_string(file_path.value()).unwrap()).unwrap();
+    let mut output = proc_macro2::TokenStream::new();
+    let channels = syn::LitInt::new(
+        &simple_config.channels.to_string(),
+        proc_macro2::Span::call_site(),
+    );
+    let banks = syn::LitInt::new(
+        &simple_config.banks.to_string(),
+        proc_macro2::Span::call_site(),
+    );
+    let subarrays = syn::LitInt::new(
+        &simple_config.subarrays.to_string(),
+        proc_macro2::Span::call_site(),
+    );
+    let cols = syn::LitInt::new(
+        &simple_config.cols.to_string(),
+        proc_macro2::Span::call_site(),
+    );
+    let word_size = syn::LitInt::new(
+        &simple_config.word_size.to_string(),
+        proc_macro2::Span::call_site(),
+    );
+    let walker_size = syn::LitInt::new(
+        &simple_config.walker_size.to_string(),
+        proc_macro2::Span::call_site(),
+    );
+
+    let definations = quote::quote!(
+        pub CONFIG_CHANNELS:usize=#channels;
+        pub CONFIG_BANKS:usize=#banks;
+        pub CONFIG_SUBARRAYS:usize=#subarrays;
+        pub CONFIG_COLS:usize=#cols;
+        pub CONFIG_WORD_SIZE:usize=#word_size;
+        pub CONFIG_WALKER_SIZE:usize=#walker_size;
+    );
+    output.extend(definations);
+    output
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_generate_default_config_inner() {
+        let input = quote::quote!("src/test.toml");
+        let output = generate_default_config_inner(input);
+        println!("{}", output);
+    }
 }

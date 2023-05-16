@@ -1,0 +1,6 @@
+banks = 2
+channels = 1
+cols = 4
+subarrays = 3
+walker_size = 6
+word_size = 5

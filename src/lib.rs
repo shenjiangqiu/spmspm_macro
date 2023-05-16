@@ -22,3 +22,10 @@ pub fn jump_cycles_struct(input: proc_macro::TokenStream) -> proc_macro::TokenSt
     let output = jump_cycles_struct::jump_cycles_struct_inner(input);
     output.into()
 }
+
+#[proc_macro]
+pub fn generate_default_config(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let input = proc_macro2::TokenStream::from(input);
+    let output = common::generate_default_config_inner(input);
+    output.into()
+}
