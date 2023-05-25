@@ -19,13 +19,13 @@ impl RowIdWordId {
 #[derive(Debug, Default, Clone)]
 pub struct RowLocation {
     pub subarray_id: SubarrayId,
-    pub row_id_world_id: RowIdWordId,
+    pub row_id_word_id: RowIdWordId,
 }
 impl RowLocation {
-    pub fn new(subarray_id: SubarrayId, row_id_world_id: RowIdWordId) -> Self {
+    pub fn new(subarray_id: SubarrayId, row_id_word_id: RowIdWordId) -> Self {
         Self {
             subarray_id,
-            row_id_world_id,
+            row_id_word_id,
         }
     }
 }

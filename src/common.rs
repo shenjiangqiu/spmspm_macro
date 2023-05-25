@@ -171,7 +171,7 @@ pub fn generate_basic_type_definitions() -> proc_macro2::TokenStream {
         }
         generate_id!(u8;RingPort);
 
-        #[derive(Debug, Default, Clone)]
+        #[derive(Clone, Copy, PartialEq, PartialOrd, Ord, Eq,Hash,Debug )]
         pub struct RowIdWordId {
             pub row_id: PhysicRowId,
             pub word_id: WordId,
@@ -184,16 +184,17 @@ pub fn generate_basic_type_definitions() -> proc_macro2::TokenStream {
                 }
             }
         }
-        #[derive(Debug, Default, Clone)]
+
+        #[derive(Clone, Copy, PartialEq, PartialOrd, Ord, Eq,Hash,Debug )]
         pub struct RowLocation {
             pub subarray_id: SubarrayId,
-            pub row_id_world_id: RowIdWordId,
+            pub row_id_word_id: RowIdWordId,
         }
         impl RowLocation{
-            pub fn new(subarray_id:SubarrayId,row_id_world_id:RowIdWordId)->Self{
+            pub fn new(subarray_id:SubarrayId,row_id_word_id:RowIdWordId)->Self{
                 Self{
                     subarray_id,
-                    row_id_world_id,
+                    row_id_word_id,
                 }
             }
         }
@@ -242,7 +243,7 @@ pub fn generate_trait_definitions(struct_name: &syn::Ident) -> proc_macro2::Toke
         /// ## Author: Jiangqiu Shen
         /// ## Date: 2023-05-11
         /// Description: AddableJumpCycle: represent the Jump cycle that can be added into the current cycle
-        pub trait AddableJumpCycle: JumpCycle {
+        pub trait AddableJumpCycle{
             /// ## rust function
             /// ## Author: Jiangqiu Shen
             /// ## Date: 2023-05-11
@@ -261,7 +262,25 @@ pub fn generate_trait_definitions(struct_name: &syn::Ident) -> proc_macro2::Toke
                 size: WordId,
                 remap_cycle: usize,
             );
+            fn batch_update(&mut self,
+                row_status: &RowIdWordId,
+                loc: &[RowLocation],
+                size: WordId,
+                remap_cycle: usize
+            ){
+                let mut temp_row_status = row_status.clone();
+                for l in loc{
+                    self.update(&temp_row_status,l,size,remap_cycle);
+                    temp_row_status = l.row_id_word_id.clone();
+                }
+            }
+
         }
+
+
+
+
+
         /// ## rust function
         /// ## Author: Jiangqiu Shen
         /// ## Date: 2023-05-11
@@ -287,6 +306,7 @@ pub fn generate_trait_definitions(struct_name: &syn::Ident) -> proc_macro2::Toke
                 item: &mut T,
             );
         }
+
         /// ## rust function
         /// ## Author: Jiangqiu Shen
         /// ## Date: 2023-05-11
